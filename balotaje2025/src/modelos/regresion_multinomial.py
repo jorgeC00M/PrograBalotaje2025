@@ -1,38 +1,43 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 import pandas as pd
-import statsmodels.api as sm
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split
 
-def preparar_X_y(df: pd.DataFrame, columnas_X: list, col_y: str = "voto"):
-    X = sm.add_constant(df[columnas_X], has_constant="add")
-    y = df[col_y]
-    return X, y
+def entrenar_multinomial(df: pd.DataFrame, target: str, features: list[str], test_size=0.25, seed=42):
+    X = df[features].copy(); y = df[target].copy()
 
-def entrenar_multinomial(X: pd.DataFrame, y: pd.Series):
-    modelo = sm.MNLogit(y, X).fit(method="newton", maxiter=200, disp=False)
-    rrr = np.exp(modelo.params)  # Razones de riesgo relativas
-    return modelo, rrr
+    num = X.select_dtypes(include="number").columns.tolist()
+    cat = [c for c in X.columns if c not in num]
 
-def exportar_coeficientes(modelo, rrr, ruta_excel: str):
-    with pd.ExcelWriter(ruta_excel) as w:
-        modelo.params.to_excel(w, sheet_name="coeficientes")
-        rrr.to_excel(w, sheet_name="RRR_exp_beta")
+    pre = ColumnTransformer(
+        transformers=[
+            ("num", StandardScaler(with_mean=False), num),
+            ("cat", OneHotEncoder(handle_unknown="ignore"), cat),
+        ],
+        remainder="drop",
+        sparse_threshold=0.3
+    )
 
-def params_a_betas_por_clase(modelo, clases: list):
-    """
-    Convierte modelo.params (clases vs coef) a dict {clase: vector_beta},
-    asignando vector 0 a la clase base que no aparece en las filas de params.
-    """
-    cols = list(modelo.params.columns)  # ['const', features...]
-    p = len(cols)
-    betas = {}
-    clases_en_params = set(modelo.params.index)
-    clase_base = list(set(clases) - clases_en_params)
-    base = clase_base[0] if clase_base else clases[-1]
-    for cl in clases:
-        if cl in clases_en_params:
-            v = modelo.params.loc[cl, :].to_numpy()
-        else:
-            v = np.zeros(p)
-        betas[cl] = v
-    return betas
+    clf = LogisticRegression(multi_class="multinomial", solver="lbfgs", max_iter=1000)
+    pipe = Pipeline([("pre", pre), ("clf", clf)])
+
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=test_size, random_state=seed, stratify=y)
+    pipe.fit(Xtr, ytr)
+    pred = pipe.predict(Xte)
+
+    acc = accuracy_score(yte, pred)
+    cm = confusion_matrix(yte, pred, labels=pipe.classes_)
+    report = classification_report(yte, pred, output_dict=True, zero_division=0)
+
+    return {
+        "pipeline": pipe,
+        "accuracy": float(acc),
+        "confusion_matrix": cm.tolist(),
+        "classes": pipe.classes_.tolist(),
+        "report": report,
+        "features": features,
+    }

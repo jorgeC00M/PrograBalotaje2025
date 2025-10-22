@@ -1,0 +1,66 @@
+# === ENTORNO Y DEPENDENCIAS ===
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Archivos de dependencias de entorno
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pdb
+
+# Archivos de compilación o temporales
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
+
+# === DATOS Y RESULTADOS ===
+# Datos sensibles o pesados (se pueden regenerar)
+datos/*.xlsx
+datos/*.csv
+!datos/ejemplo_*.csv   # puedes dejar ejemplos pequeños si deseas
+
+# Resultados de simulaciones o gráficos
+resultados/graficos/
+resultados/simulaciones/
+resultados/tablas/
+resultados/*.csv
+resultados/*.xlsx
+
+# === ENTORNOS Y CONFIGURACIONES LOCALES ===
+# Archivos de VS Code o IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# === DEPENDENCIAS INSTALADAS ===
+# npm o node si usas algo para frontend
+node_modules/
+package-lock.json
+
+# === ARCHIVOS DE EJECUCIÓN O INFORMES ===
+# Archivos generados (informes, PDFs, etc.)
+*.pdf
+*.docx
+*.pptx
+*.zip
+*.tar.gz
+
+# === ARCHIVOS DE SISTEMA ===
+# Archivos del sistema operativo
+.DS_Store
+ehthumbs.db
+Icon?
+desktop.ini
+
+# === SALIDA DE PRUEBAS O DEBUG ===
+tests/__pycache__/
+*.pytest_cache/
+.coverage
+htmlcov/

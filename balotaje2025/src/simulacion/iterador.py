@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-def iterar(pasos):
-    """Generador t=0..pasos-1."""
-    for t in range(pasos):
-        yield t
+from dataclasses import dataclass
+
+@dataclass
+class IteradorConfig:
+    T: int = 20
+    R: int = 50
+    seed: int = 42

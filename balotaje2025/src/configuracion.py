@@ -1,20 +1,37 @@
 # -*- coding: utf-8 -*-
-import os
+from dataclasses import dataclass
+from pathlib import Path
 
-# Rutas base
-RUTA_BASE = os.path.dirname(os.path.dirname(__file__))
-RUTA_DATOS = os.path.join(RUTA_BASE, "datos", "respuestas.xlsx")
+BASE = Path(__file__).resolve().parents[1]
+DATOS = BASE / "datos"
+RESULTADOS = BASE / "resultados"
+RES_MODELOS = RESULTADOS / "modelos"
+RES_GRAFICOS = RESULTADOS / "graficos"
+RES_SIMULACIONES = RESULTADOS / "simulaciones"
+RES_TABLAS = RESULTADOS / "tablas"
 
-RUTA_RESULTADOS = os.path.join(RUTA_BASE, "resultados")
-RUTA_TABLAS = os.path.join(RUTA_RESULTADOS, "tablas")
-RUTA_GRAFICOS = os.path.join(RUTA_RESULTADOS, "graficos")
-RUTA_MODELOS = os.path.join(RUTA_RESULTADOS, "modelos")
-RUTA_SIMULACIONES = os.path.join(RUTA_RESULTADOS, "simulaciones")
+for p in [RESULTADOS, RES_MODELOS, RES_GRAFICOS, RES_SIMULACIONES, RES_TABLAS]:
+    p.mkdir(parents=True, exist_ok=True)
 
-# Parámetros globales
-SEMILLA = 42
-PASOS_SIMULACION = 6
+DEFAULT_EXCEL = DATOS / "respuestas.xlsx"
 
-# Clases de voto (ajusta si cambian tus etiquetas)
-CLASES = ["a", "b", "blanco", "nulo", "indeciso"]
-CLASE_BASE = "indeciso"
+@dataclass
+class AppState:
+    df = None                # pandas.DataFrame crudo
+    df_proc = None           # DataFrame procesado
+    target: str | None = None
+    roles: dict = None       # {col: "Demográfica"|"Likert"|"Atributo"|...}
+    dist_fits: dict = None   # {col: {"dist":..., "params":{...}}}
+    poisson_lambda: float | None = None
+    model = None             # sklearn pipeline
+    model_report: dict | None = None
+    model_features: list | None = None
+    model_classes: list | None = None
+    T: int = 20
+    R: int = 50
+    warmup: int = 0
+    seed: int = 42
+
+    def __post_init__(self):
+        if self.roles is None: self.roles = {}
+        if self.dist_fits is None: self.dist_fits = {}

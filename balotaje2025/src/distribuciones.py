@@ -1,28 +1,33 @@
 # -*- coding: utf-8 -*-
-from math import comb, exp, factorial, erf, sqrt
+import numpy as np
+import pandas as pd
 
-# === Normal (CDF) ===
-def normal_cdf(x, mu=0.0, sigma=1.0):
-    z = (x - mu) / (sigma * sqrt(2))
-    return 0.5 * (1 + erf(z))
+def fit_normal(x: np.ndarray) -> dict:
+    mu = float(np.nanmean(x)); sigma = float(np.nanstd(x, ddof=1))
+    return {"dist": "normal", "params": {"mu": mu, "sigma": sigma}}
 
-# === Binomial (PMF) ===
-def binomial_pmf(k, n, p):
-    if k < 0 or k > n:
-        return 0.0
-    return comb(n, k) * (p ** k) * ((1 - p) ** (n - k))
+def fit_lognormal(x: np.ndarray) -> dict:
+    x = x[x > 0]
+    if len(x)==0: return {"dist":"lognormal","params":{"mu":np.nan,"sigma":np.nan}}
+    logx = np.log(x); mu = float(np.nanmean(logx)); sigma = float(np.nanstd(logx, ddof=1))
+    return {"dist":"lognormal","params":{"mu":mu,"sigma":sigma}}
 
-# === Poisson (PMF, CDF, Muestra) ===
-def poisson_pmf(k, lam):
-    if k < 0:
-        return 0.0
-    return (exp(-lam) * (lam ** k)) / factorial(k)
+def fit_exponencial(x: np.ndarray) -> dict:
+    x = x[x >= 0]; m = float(np.nanmean(x))
+    lam = (1.0/m) if (m and m>0) else np.nan
+    return {"dist":"exponencial","params":{"lambda":lam}}
 
-def poisson_cdf(k, lam):
-    return sum(poisson_pmf(i, lam) for i in range(k + 1))
+def fit_gamma(x: np.ndarray) -> dict:
+    x = x[x>0]; m=float(np.nanmean(x)); v=float(np.nanvar(x, ddof=1))
+    if v<=0 or m<=0: return {"dist":"gamma","params":{"k":np.nan,"theta":np.nan}}
+    k = m**2 / v; theta = v / m
+    return {"dist":"gamma","params":{"k":float(k),"theta":float(theta)}}
 
-def poisson_muestra(lam, n=1, rng=None):
-    import numpy as np
-    if rng is None:
-        rng = np.random.default_rng(42)
-    return rng.poisson(lam, size=n)
+def poisson_lambda(x: np.ndarray) -> float:
+    x = x[~np.isnan(x)]
+    return float(np.mean(x)) if len(x) else float("nan")
+
+def pmf_poisson(k_arr: np.ndarray, lam: float) -> np.ndarray:
+    import math
+    p = np.array([math.exp(-lam)*lam**k / math.factorial(k) for k in k_arr], dtype=float)
+    return p / p.sum() if p.sum()>0 else p

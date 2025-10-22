@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Escenarios (opcional). Genera una lista de shocks simples por paso.
-Cada shock es un dict {clase: delta_utilidad}.
-Si no quieres escenarios, no lo uses (pasa None en el simulador).
-"""
+def base_probs():
+    # Puedes ajustar esto o calcularlo desde tus datos reales (p.ej., promedios observados)
+    return {"A": 0.30, "B": 0.40, "Blanco": 0.20, "Nulo": 0.05, "Indeciso": 0.05}
 
-def escenario_simple(clases, pasos=6, favorece="a", delta=0.4, t0=2):
-    shocks = [None] * pasos
-    if favorece in clases and 0 <= t0 < pasos:
-        shocks[t0] = {favorece: float(delta)}
-    return shocks
+def efecto_shock_default():
+    # Efectos por shock sobre probabilidades (se renormalizan en la simulación)
+    return {"A": +0.01, "B": -0.01, "Blanco": 0.0, "Nulo": 0.0, "Indeciso": 0.0}

@@ -1,39 +1,26 @@
 # -*- coding: utf-8 -*-
-import os
 import numpy as np
-import pandas as pd
-from .transiciones import softmax, utilidades
-from ..configuracion import RUTA_SIMULACIONES
+from .transiciones import aplicar_shocks
+from .estado import aplicar_warmup
 
-def simular(pasos, X, firmeza, estados_idx, clases, betas_por_clase, shocks_por_t=None, rng=None):
+def simular(T: int, R: int, warmup: int, base_probs: dict, lam: float, effect_map: dict, seed=42):
     """
-    Simulación dinámica mínima, sin necesidad de escenarios.
-    - shocks_por_t: lista de dicts o None; cada dict {clase: delta_utilidad}.
+    - En cada t: N_t ~ Poisson(lam) shocks.
+    - Cada shock añade 'effect' a las probabilidades y se normaliza.
     """
-    if rng is None:
-        rng = np.random.default_rng(42)
-    historial = []
+    rng = np.random.default_rng(seed)
+    clases = list(base_probs.keys())
+    base = np.array([base_probs[c] for c in clases], dtype=float); base = base/base.sum()
+    effect = np.array([effect_map.get(c, 0.0) for c in clases], dtype=float)
 
-    for t in range(pasos):
-        eta = utilidades(X, betas_por_clase, clases, firmeza, estados_idx)
+    traj = np.zeros((R, T, len(clases)), dtype=float)
+    for r in range(R):
+        p = base.copy()
+        for t in range(T):
+            shocks = rng.poisson(lam)
+            p = aplicar_shocks(p, shocks, effect)
+            traj[r, t, :] = p
 
-        # Aplica shocks opcionales
-        if shocks_por_t and t < len(shocks_por_t) and shocks_por_t[t]:
-            for cls, delta in shocks_por_t[t].items():
-                k = clases.index(cls)
-                eta[:, k] += float(delta)
-
-        p = softmax(eta)
-        cumul = p.cumsum(axis=1)
-        r = rng.random((len(X), 1))
-        estados_idx = (r > cumul[:, :-1]).sum(axis=1)
-
-        conteo = {cl: int((estados_idx == i).sum()) for i, cl in enumerate(clases)}
-        conteo["t"] = t
-        historial.append(conteo)
-
-    hist_df = pd.DataFrame(historial).set_index("t")
-    os.makedirs(RUTA_SIMULACIONES, exist_ok=True)
-    hist_path = os.path.join(RUTA_SIMULACIONES, "simulacion_historial.xlsx")
-    hist_df.to_excel(hist_path)
-    return hist_df, estados_idx, hist_path
+    t0, avg, sd = aplicar_warmup(traj, warmup)
+    summary = {clases[i]: {"mean": float(avg[i]), "sd": float(sd[i])} for i in range(len(clases))}
+    return {"classes": clases, "trajectories": traj, "warmup_used": t0, "summary": summary}

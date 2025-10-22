@@ -1,23 +1,31 @@
 # -*- coding: utf-8 -*-
-import os
 import pandas as pd
-from .configuracion import RUTA_TABLAS
+import numpy as np
+from .configuracion import RES_TABLAS
 
-def generar_tablas_cruzadas(df: pd.DataFrame) -> dict:
-    """Crea crosstabs normalizadas por fila (porcentaje dentro de cada grupo)."""
-    tablas = {}
-    if "estrato" in df.columns and "voto" in df.columns:
-        tablas["estrato_voto"] = pd.crosstab(df["estrato"], df["voto"], normalize="index").round(3)
-    if "situacion" in df.columns and "voto" in df.columns:
-        tablas["situacion_voto"] = pd.crosstab(df["situacion"], df["voto"], normalize="index").round(3)
-    if "ideologia" in df.columns and "voto" in df.columns:
-        tablas["ideologia_voto"] = pd.crosstab(df["ideologia"], df["voto"], normalize="index").round(3)
-    return tablas
+def crosstab(df: pd.DataFrame, fila: str, col: str):
+    freq = pd.crosstab(df[fila], df[col], dropna=True)
+    por_fila = pd.crosstab(df[fila], df[col], normalize="index", dropna=True).round(3)
+    return freq, por_fila
 
-def exportar_tablas(tablas: dict, nombre="tablas_cruzadas.xlsx"):
-    os.makedirs(RUTA_TABLAS, exist_ok=True)
-    ruta = os.path.join(RUTA_TABLAS, nombre)
-    with pd.ExcelWriter(ruta) as w:
-        for hoja, t in tablas.items():
-            t.to_excel(w, sheet_name=hoja[:31])
-    return ruta
+def cramers_v(tabla: pd.DataFrame) -> float:
+    chi2 = _chi2_stat(tabla.values)
+    n = tabla.values.sum()
+    r, k = tabla.shape
+    return float(np.sqrt(chi2 / (n * (min(r-1, k-1))))) if min(r,k) > 1 else float("nan")
+
+def _chi2_stat(obs):
+    row_sums = obs.sum(axis=1, keepdims=True)
+    col_sums = obs.sum(axis=0, keepdims=True)
+    total = obs.sum()
+    expected = row_sums @ col_sums / total
+    with np.errstate(divide="ignore", invalid="ignore"):
+        chi2 = np.nansum((obs-expected)**2 / expected)
+    return float(chi2)
+
+def exportar_crosstab(nombre_base: str, freq: pd.DataFrame, por_fila: pd.DataFrame):
+    xlsx = RES_TABLAS / f"{nombre_base}.xlsx"
+    with pd.ExcelWriter(xlsx, engine="openpyxl") as w:
+        freq.to_excel(w, sheet_name="Frecuencias")
+        por_fila.to_excel(w, sheet_name="%Fila")
+    return xlsx

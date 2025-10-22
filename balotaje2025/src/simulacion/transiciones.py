@@ -1,23 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-def softmax(eta):
-    e = np.exp(eta - eta.max(axis=1, keepdims=True))
-    return e / e.sum(axis=1, keepdims=True)
-
-def utilidades(X, betas_por_clase: dict, clases: list, firmeza, estado_idx, lambda_firmeza=0.4):
+def aplicar_shocks(probs: np.ndarray, n_shocks: int, effect: np.ndarray):
     """
-    η_k = β0_k + X @ β_k + λ * firmeza (solo para la clase actual)
-    - X: matriz [n, p-1] si p incluye constante aparte.
-    - betas_por_clase[clase]: vector [const, β1, β2, ...]
+    Aplica n_shocks veces el vector 'effect' a las probabilidades y renormaliza.
     """
-    n = X.shape[0]; K = len(clases)
-    eta = np.zeros((n, K))
-    for k, cls in enumerate(clases):
-        beta = betas_por_clase[cls]
-        eta[:, k] = beta[0] + X @ beta[1:]
-    # inercia hacia la clase actual
-    for k in range(K):
-        mask = (estado_idx == k)
-        eta[mask, k] += lambda_firmeza * firmeza[mask]
-    return eta
+    p = probs + n_shocks * effect
+    p = np.clip(p, 1e-6, None)
+    p = p / p.sum()
+    return p

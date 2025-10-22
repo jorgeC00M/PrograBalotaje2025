@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-Define mapeos y el listado de predictores que entran al modelo.
-Ajusta los nombres a los encabezados reales de tu Excel.
-"""
+def set_target(state, col: str):
+    if state.df_proc is None or col not in state.df_proc.columns:
+        raise ValueError("Columna objetivo inválida.")
+    state.target = col
 
-MAPEO_IDEOLOGIA = {
-    "izquierda": -2,
-    "centro-izquierda": -1,
-    "centro": 0,
-    "centro-derecha": 1,
-    "derecha": 2
-}
+def set_role(state, cols: list[str], role: str):
+    for c in cols:
+        if c in state.df_proc.columns:
+            state.roles[c] = role
 
-# Variables atributo (Likert 1–5) — AJUSTA a tus columnas reales:
-ATRIBUTOS = [
-    "honestidad_a", "liderazgo_a", "conexion_a", "propuestas_a",
-    "honestidad_b", "liderazgo_b", "conexion_b", "propuestas_b"
-]
+def columnas(state):
+    return [] if state.df_proc is None else list(state.df_proc.columns)
 
-# Lista de features del modelo — AJUSTA a tus columnas reales:
-COLUMNAS_X = [
-    "firmeza",
-    "ideologia_num",
-] + ATRIBUTOS
+def numericas(state):
+    if state.df_proc is None: return []
+    return state.df_proc.select_dtypes(include="number").columns.tolist()
+
+def categoricas(state):
+    if state.df_proc is None: return []
+    return [c for c in state.df_proc.columns if c not in numericas(state)]
