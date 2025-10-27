@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
@@ -29,15 +28,18 @@ def entrenar_multinomial(df: pd.DataFrame, target: str, features: list[str], tes
     pipe.fit(Xtr, ytr)
     pred = pipe.predict(Xte)
 
+    # OJO: classes_ viene del estimador final, no del Pipeline
+    classes = pipe.named_steps["clf"].classes_
+
     acc = accuracy_score(yte, pred)
-    cm = confusion_matrix(yte, pred, labels=pipe.classes_)
+    cm = confusion_matrix(yte, pred, labels=classes)
     report = classification_report(yte, pred, output_dict=True, zero_division=0)
 
     return {
         "pipeline": pipe,
         "accuracy": float(acc),
         "confusion_matrix": cm.tolist(),
-        "classes": pipe.classes_.tolist(),
+        "classes": classes.tolist(),
         "report": report,
         "features": features,
     }

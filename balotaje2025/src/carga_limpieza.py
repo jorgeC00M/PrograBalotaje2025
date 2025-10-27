@@ -1,9 +1,20 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
 import numpy as np
 
-def cargar_excel(path, sheet_name=None):
-    return pd.read_excel(path, sheet_name=sheet_name)
+def cargar_excel(path, sheet_name=0):
+    """
+    Devuelve SIEMPRE un DataFrame.
+    - Por defecto lee la PRIMERA hoja (sheet_name=0).
+    - Si sheet_name=None o algo que devuelva un dict, toma la primera hoja válida.
+    """
+    df = pd.read_excel(path, sheet_name=sheet_name)
+    if isinstance(df, dict):
+        # Tomar la primera hoja que sea DataFrame
+        for _, v in df.items():
+            if isinstance(v, pd.DataFrame):
+                return v
+        raise ValueError("El Excel no contiene hojas válidas.")
+    return df
 
 def vista_previa(df: pd.DataFrame, n=20):
     return df.head(n)
