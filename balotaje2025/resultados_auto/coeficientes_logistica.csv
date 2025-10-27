@@ -1,0 +1,31 @@
+feature,coef,odds_ratio
+¿conque_tendencia_politica_se_identifica_mas_personalmente?_Centro-Izquierda,1.059133189850687,2.8838701376381524
+estatus_laboral_recien_profesionalizados_profesionales_junior__Emprendedor,0.9926369412405947,2.6983404644417104
+"¿que_tan_importante_considera_que_fueron_los_siguientes_temas_para_que_usted_decida_su_voto?_1=_nada_importante,_5_=_muy_importante_[lucha_contra_la_corrupcion_y_justicia]",0.6146847260788272,1.8490735429854568
+¿conque_tendencia_politica_se_identifica_mas_personalmente?_Centro,0.6053282761828923,1.8318534640542956
+"¿que_tan_seguro_esta_de_su_eleccion?_2, Medio seguro",0.4192089359338973,1.520758062604793
+estatus_laboral_recien_profesionalizados_profesionales_junior__Innovador,0.2618345800224666,1.2993115925569207
+genero_Masculino,0.24032781763039837,1.2716659565199866
+"¿que_tan_seguro_esta_de_su_eleccion?_3, Seguro",0.22280688484239874,1.2495792377424828
+"estrato_socio_economico_percibido_Medio (Vida comoda, capacidad de ahorro)",0.21666686542294872,1.2419303032899252
+edad_18 - 24 años,0.18596538780680996,1.204380573403114
+"estrato_socio_economico_percibido_Medio-Alto (Ingresos significativos, estabilidad)",0.1322627857340697,1.1414082256584015
+situacion_educativa_Recien Profesionalizado,0.11218823437247483,1.1187234230283911
+departamento_de_residencia_Cochabamba,0.08764620631587335,1.0916018518614843
+edad_25 - 30 años,0.01983813287092395,1.020036216329176
+"¿que_tan_seguro_esta_de_su_eleccion?_1, Nada seguro",-0.03985419249900238,0.9609295396730361
+¿conque_tendencia_politica_se_identifica_mas_personalmente?_Izquierda/Progresista,-0.03985419249900238,0.9609295396730361
+estatus_laboral_recien_profesionalizados_profesionales_junior__Empleado Institucion Publica,-0.04360809399932775,0.9573290669703778
+"estrato_socio_economico_percibido_Medio-Bajo  (Cubriendo necesidades, pocos ahorros)",-0.05367352448627856,0.9477414703826028
+departamento_de_residencia_Oruro,-0.08796341835328672,0.9157943773769426
+situacion_educativa_Estudiante Universitario,-0.11250544640988784,0.8935924802243421
+edad_mas de 30 años,-0.20612073271514725,0.8137348259370794
+genero_Femenino,-0.24064502966781204,0.7861206263669397
+"¿que_tan_seguro_esta_de_su_eleccion?_4, Bien seguro",-0.2492238683549827,0.7794054696321441
+estatus_laboral_recien_profesionalizados_profesionales_junior__Empleado Epresa Privada,-0.2541589961989018,0.7755684798025752
+estrato_socio_economico_percibido_Bajo (Luchando para cubiri necesidades basicas),-0.29557333870815305,0.7441048410341864
+"¿que_tan_seguro_esta_de_su_eleccion?_5, Completamente seguro",-0.3532549719597244,0.7023980787289653
+estatus_laboral_recien_profesionalizados_profesionales_junior__Feelance,-0.3725999411843678,0.6889407945581457
+estatus_laboral_recien_profesionalizados_profesionales_junior__Desempleado,-0.5844217019178771,0.557428128237646
+¿conque_tendencia_politica_se_identifica_mas_personalmente?_Derecha Conservadora,-0.60597462704948,0.5455424670057103
+¿conque_tendencia_politica_se_identifica_mas_personalmente?_Centro-Derecha,-1.01894985852251,0.360973814777477
